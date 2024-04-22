@@ -8,19 +8,6 @@ local function printHome(x, y, z)
     print('X: ', x, ' Y: ', y, ' Z: ',z)
 end
 
-local function getHome()
-    saveFile =io.open('/home','r')
-    if saveFile ~= nil then
-        x = saveFile.read()
-        y = saveFile.read()
-        z = saveFile.read()
-        printHome(x,y,z)
-        io.close(saveFile)
-    else
-        setHome()
-    end
-end
-   
 local function setHome()   
     print('Home Coordinates Needed!')
    
@@ -45,4 +32,18 @@ local function setHome()
     return home
 end
 
+
+local function getHome()
+    saveFile =io.open('/home','r')
+    if saveFile ~= nil then
+        x = saveFile.read()
+        y = saveFile.read()
+        z = saveFile.read()
+        printHome(x,y,z)
+        io.close(saveFile)
+    else
+        setHome()
+    end
+end
+   
 getHome()
