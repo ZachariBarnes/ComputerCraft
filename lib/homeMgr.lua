@@ -14,35 +14,44 @@ local function setHome()
     home = {}
    
     print('X: ')
-    home[x] = read()
+    home[1] = read()
     print('Y: ')
-    home[y] = read()
+    home[2] = read()
     print('Z: ')
-    home[z] = read()
+    home[3] = read()
        
-    saveFile = io.open('/home','w')
-    saveFile.write(home[x])
-    saveFile.write(home[y])
-    saveFile.write(home[z])
+    handler = io.open('/home','w')
+    io.output(handler)
+    handler.write(handler, home[1],'\n')
+    handler.write(handler, home[2],'\n')
+    handler.write(handler, home[3],'\n')
        
     print('Home Coordinates Set!')
     print('Home Coordinates are')
-    printHome(home[x],home[y],home[z])
+    printHome(home[1],home[2],home[3])
     io.close(saveFile)
     return home
 end
 
 
 local function getHome()
-    saveFile =io.open('/home','r')
-    if saveFile ~= nil then
-        x = saveFile.read()
-        y = saveFile.read()
-        z = saveFile.read()
+    handler =io.open('/home','r')
+    if handler ~= nil then
+        x = handler.read(handler)
+        y = handler.read(handler)
+        z = handler.read(handler)
+        home = table.pack(x,y,z)
+        print('Save Home Coordinates Found! Are they correct? (y/n)')
         printHome(x,y,z)
-        io.close(saveFile)
+        ans = read()
+        if ans == 'y' then
+            return home
+        else
+            return setHome()
+        end
     else
-        setHome()
+        io.close(saveFile)
+        return setHome()
     end
 end
    
