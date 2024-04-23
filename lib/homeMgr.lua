@@ -4,7 +4,7 @@
 
 print('Booting up!')
 
-local function printHome(x, y, z)
+local function printCords(x, y, z)
     print('X: ', x, ' Y: ', y, ' Z: ',z)
 end
 
@@ -27,14 +27,14 @@ local function setHome()
     handler.write(handler, home[3],'\n')
        
     print('Home Coordinates Set!')
-    print('Home Coordinates are')
-    printHome(home[1],home[2],home[3])
+    printCords(home[1],home[2],home[3])
     io.close(saveFile)
     return home
 end
 
 
 local function getHome()
+    write('Checking for Save Home Coordinates...')
     handler =io.open('/home','r')
     if handler ~= nil then
         x = handler.read(handler)
@@ -42,7 +42,7 @@ local function getHome()
         z = handler.read(handler)
         home = table.pack(x,y,z)
         print('Save Home Coordinates Found! Are they correct? (y/n)')
-        printHome(x,y,z)
+        printCords(x,y,z)
         ans = read()
         if ans == 'y' then
             return home
