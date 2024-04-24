@@ -1,24 +1,20 @@
--- pull in Home functions
--- require(home)
+local mgr = {}
 
-
-print('Booting up!')
-
-local function printCords(x, y, z)
+function mgr.printCords(x, y, z)
     print('X: ', x, ' Y: ', y, ' Z: ',z)
 end
 
-local function setHome()   
+function mgr.setHome()   
     print('Home Coordinates Needed!')
    
     home = {}
    
     print('X: ')
-    home[1] = read()
+    home[1] = tonumber(read())
     print('Y: ')
-    home[2] = read()
+    home[2] = tonumber(read())
     print('Z: ')
-    home[3] = read()
+    home[3] = tonumber(read())
        
     handler = io.open('/home','w')
     io.output(handler)
@@ -27,32 +23,46 @@ local function setHome()
     handler.write(handler, home[3],'\n')
        
     print('Home Coordinates Set!')
-    printCords(home[1],home[2],home[3])
+    mgr.printCords(home[1],home[2],home[3])
     io.close(saveFile)
-    return home
+    settings.load('.settings')
+    settings.set('home', home)
+    settings.save('.settings')
+    return true
 end
 
 
-local function getHome()
+function mgr.getHome()
     write('Checking for Save Home Coordinates...')
     handler =io.open('/home','r')
     if handler ~= nil then
-        x = handler.read(handler)
-        y = handler.read(handler)
-        z = handler.read(handler)
+        x = tonumber(handler.read(handler))
+        y = tonumber(handler.read(handler))
+        z = tonumber(handler.read(handler))
         home = table.pack(x,y,z)
         print('Save Home Coordinates Found! Are they correct? (y/n)')
-        printCords(x,y,z)
+        mgr.printCords(x,y,z)
         ans = read()
         if ans == 'y' then
-            return home
+            settings.load('.settings')
+            settings.set('home', home)
+            settings.save('.settings')
+            return true
         else
-            return setHome()
+            home = setHome()
+            settings.load('.settings')
+            settings.set('home', home)
+            settings.save('.settings')
+            return true
         end
     else
         io.close(saveFile)
-        return setHome()
+        home = setHome()
+        settings.load('.settings')
+        settings.set('home', home)
+        settings.save('.settings')
+        return true
     end
 end
    
-getHome()
+return mgr
