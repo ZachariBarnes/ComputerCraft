@@ -12,6 +12,44 @@ mineDir = 'S' --Direction from which to quarry
 l = 16 -- length of the proposed quarry
 w = 16 -- width of the proposed quarry
 
+local function saveState(inProgress)
+    settings.load('.settings')
+
+    settings.set('home', home)
+    settings.set('loc', loc)
+    settings.set('face', face)
+
+    savedDirs = table.pack(dropoffDir, fuelDir, mineDir)
+    settings.set('savedDirs', savedDirs)
+
+    dims = table.pack(l,w)
+    settings.set('dims', dims)
+
+    settings.set('inProgress', inProgress)
+    settings.save('.settings')
+end
+
+local function loadState()
+    settings.load('.settings')
+
+    settings.get('home', home)
+    settings.set('loc', loc)
+    settings.set('face', face)
+
+    savedDirs = table.pack(dropoffDir, fuelDir, mineDir)
+    settings.set('savedDirs', savedDirs)
+
+    dims = table.pack(l,w)
+    settings.set('dims', dims)
+
+    settings.save('.settings')
+end
+
+local function inProgress()
+    settings.load('.settings')
+    resuming = settings.get('inProgress', false)
+    return resuming
+end
 
 local function setCords()
     print('Am I currently at the Home Coordinates? (y/n)')
@@ -129,9 +167,14 @@ end
 
 local function init()
     print('Booting up!');
-    -- if inProgress() then
-        --loadSaved()
-    --else
+    if inProgress() then
+        print('Save state found. Would you like to resume? (y/n)')
+        ans = read()
+        if ans == 'y' then
+            loadState()
+            return
+        end
+    else
     homeMgr.getHome();
     settings.load('.settings')
     home = settings.get('home', table.pack(0,0,0))
@@ -140,7 +183,8 @@ local function init()
     setCords()
     setDirs()
     getDigDimensions()
-    --end
+    saveState(true)
+    end
 end 
 
 local function getDistanceFromFuelBox()
@@ -159,35 +203,45 @@ local function getDistanceFromFuelBox()
 end
 
 
+local function refuel(fuelLevel, fuelNeeded)
+    turtle.select(1)
+    fuelIsPresent = turtle.refuel(0) -- Make sure Slot 1 is Combustable (charcoal?)
+    if fuelIsPresent then
+
+        while fuelLevel <= fuelNeeded and fuelIsPresent do
+            if( turtle.getItemCount() == 1) then
+                -- TODO: Look for other fuel Sources
+                -- TODO: Save before Shutdown
+                print('Out of Fuel')
+                -- error('Not Enough Fuel. Please Add more')
+            end
+            turtle.refuel()
+            fuelLevel = turtle.getFuelLevel()
+            fuelIsPresent = turtle.refuel(0)
+        end
+    end
+end
+
+local function isFuelNeeded()
+    turtle.select(1)
+    if turtle.getItemCount() < 10 then
+        return true
+    end
+    return false
+end
+
 local function manageFuel()
     fuelLevel = turtle.getFuelLevel()
     fuelNeeded = getDistanceFromFuelBox() + 1
     if fuelLevel <= fuelNeeded then 
-        turtle.select(1)
-        
-        fuelIsPresent = turtle.refuel(0)
-        if fuelIsPresent then
-        
-            while fuelLevel <= fuelNeeded and fuelIsPresent do
-                if( turtle.getItemCount() == 1) then
-                    -- TODO: Look for other fuel Sources
-                    error('Not Enough Fuel. Please Add more')
-                    -- TODO: Save in case of Shutdown
-                end
-                turtle.refuel()
-                fuelLevel = turtle.getFuelLevel()
-                fuelIsPresent = turtle.refuel(0)
-            end
-        
-        else
-            --Look for other fuel Sources
-            error('Not Enough Fuel. Please Add more')
-            -- Save in case of Shutdown
-        end
+        refuel(fuelNeeded, fuelLevel)
+    else
+        --Look for other fuel Sources
+        -- TODO: Save before Shutdown
+        error('Not Enough Fuel. Please Add more')
     end
 
-    turtle.select(1)
-    if turtle.getItemCount() < 10 then -- Low Fuel
+  if isFuelNeeded() then -- Low Fuel
         print('Low Fuel Detected')
         -- TODO: Go Get more Fuel
             -- Move to Home Location
