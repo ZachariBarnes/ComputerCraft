@@ -32,17 +32,18 @@ end
 local function loadState()
     settings.load('.settings')
 
-    settings.get('home', home)
-    settings.set('loc', loc)
-    settings.set('face', face)
+    home = settings.get('home', home)
+    loc = settings.get('loc', loc)
+    face = settings.get('face', face)
 
-    savedDirs = table.pack(dropoffDir, fuelDir, mineDir)
-    settings.set('savedDirs', savedDirs)
+    savedDirs = settings.get('savedDirs', table.pack(dropoffDir, fuelDir, mineDir))
+    dropoffDir = savedDirs[1]
+    fuelDir = savedDirs[2]
+    mineDir = savedDirs[3]
 
-    dims = table.pack(l,w)
-    settings.set('dims', dims)
-
-    settings.save('.settings')
+    dims = settings.get('dims', table.pack(l,w))
+    l = dims[1]
+    w = dims[2]
 end
 
 local function inProgress()
@@ -213,7 +214,7 @@ local function refuel(fuelLevel, fuelNeeded)
                 -- TODO: Look for other fuel Sources
                 -- TODO: Save before Shutdown
                 print('Out of Fuel')
-                -- error('Not Enough Fuel. Please Add more')
+                error('Not Enough Fuel. Please Add more')
             end
             turtle.refuel()
             fuelLevel = turtle.getFuelLevel()
@@ -230,25 +231,29 @@ local function isFuelNeeded()
     return false
 end
 
+local function fetchFuel()
+    -- TODO: Go Get more Fuel
+    -- Move to Home Location
+    -- Turn to Face FuelBox
+    -- Turtle.Suck()
+    -- manageFuel()
+    -- Resume Dig
+end
+
 local function manageFuel()
     fuelLevel = turtle.getFuelLevel()
     fuelNeeded = getDistanceFromFuelBox() + 1
-    if fuelLevel <= fuelNeeded then 
+    refuelNeeded = fuelLevel <= fuelNeeded
+    print('Fuel Needed: ', fuelNeeded, '<=', fuelLevel, 'is ', refuelNeeded)
+    if refuelNeeded then 
         refuel(fuelNeeded, fuelLevel)
     else
-        --Look for other fuel Sources
-        -- TODO: Save before Shutdown
-        error('Not Enough Fuel. Please Add more')
+        print('FuelCheck Good!')
     end
 
   if isFuelNeeded() then -- Low Fuel
-        print('Low Fuel Detected')
-        -- TODO: Go Get more Fuel
-            -- Move to Home Location
-            -- Turn to Face FuelBox
-            -- Turtle.Suck()
-            -- manageFuel()
-            -- Resume Dig
+        print('Low Fuel Detected, attempting to fetch more...')
+        fetchFuel()
     end
 end
 
