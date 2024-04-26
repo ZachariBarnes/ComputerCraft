@@ -44,6 +44,7 @@ local function loadState()
     dims = settings.get('dims', table.pack(l,w))
     l = dims[1]
     w = dims[2]
+    print('Successfully Loaded Save State')
 end
 
 local function inProgress()
@@ -167,15 +168,6 @@ local function getDigDimensions()
 end
 
 local function init()
-    print('Booting up!');
-    if inProgress() then
-        print('Save state found. Would you like to resume? (y/n)')
-        ans = read()
-        if ans == 'y' then
-            loadState()
-            return
-        end
-    else
     homeMgr.getHome();
     settings.load('.settings')
     home = settings.get('home', table.pack(0,0,0))
@@ -185,6 +177,23 @@ local function init()
     setDirs()
     getDigDimensions()
     saveState(true)
+end
+
+local function startUpManual()
+    print('Booting up!');
+    if inProgress() then
+        print('Save state found. Would you like to resume? (y/n)')
+        ans = read()
+        --print('You Answered:', ans)
+        if ans == 'y' then
+            print('Attempting to Load Save State')
+            loadState()
+            return
+        else init()
+            return
+        end
+    else
+        init()
     end
 end 
 
@@ -233,18 +242,25 @@ end
 
 local function fetchFuel()
     -- TODO: Go Get more Fuel
-    -- Move to Home Location
-    -- Turn to Face FuelBox
-    -- Turtle.Suck()
-    -- manageFuel()
-    -- Resume Dig
+    if getDistanceFromFuelBox() > 0 then
+        -- Move to Home Location
+        t.moveToLoc(home, loc, face)
+    end
+
+    if face[1] ~= fuelDir then
+        -- Turn to Face FuelBox
+        face = t.turnToFace(fuelDir, face)
+    end
+    -- Retrieve stack of fuel
+    turtle.suck()
+    saveState(true)
 end
 
 local function manageFuel()
     fuelLevel = turtle.getFuelLevel()
     fuelNeeded = getDistanceFromFuelBox() + 1
     refuelNeeded = fuelLevel <= fuelNeeded
-    print('Fuel Needed: ', fuelNeeded, '<=', fuelLevel, 'is ', refuelNeeded)
+    --print('Fuel Needed: ', fuelNeeded, '<=', fuelLevel, 'is ', refuelNeeded)
     if refuelNeeded then 
         refuel(fuelNeeded, fuelLevel)
     else
@@ -257,5 +273,13 @@ local function manageFuel()
     end
 end
 
-init()
+function startDig()
+    if face[1] ~= mineDir then
+        -- Turn to Face Mine Direction
+        face = t.turnToFace(mineDir, face)
+    end
+end
+
+startUpManual()
 manageFuel()
+startDig()

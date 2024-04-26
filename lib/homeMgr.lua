@@ -49,7 +49,7 @@ function mgr.getHome()
             settings.save('.settings')
             return true
         else
-            home = setHome()
+            home = mgr.setHome()
             settings.load('.settings')
             settings.set('home', home)
             settings.save('.settings')
@@ -57,7 +57,7 @@ function mgr.getHome()
         end
     else
         io.close(saveFile)
-        home = setHome()
+        home = mgr.setHome()
         settings.load('.settings')
         settings.set('home', home)
         settings.save('.settings')
