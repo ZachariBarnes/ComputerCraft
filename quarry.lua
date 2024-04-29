@@ -11,6 +11,7 @@ dropoffDir = 'N' --Direction of Dropoff from HOME location
 mineDir = 'S' --Direction from which to quarry
 l = 16 -- length of the proposed quarry
 w = 16 -- width of the proposed quarry
+startLoc = {}
 
 local function saveState(inProgress)
     settings.load('.settings')
@@ -24,6 +25,7 @@ local function saveState(inProgress)
 
     dims = table.pack(l,w)
     settings.set('dims', dims)
+    settings.set('startLoc', startLoc)
 
     settings.set('inProgress', inProgress)
     settings.save('.settings')
@@ -44,6 +46,8 @@ local function loadState()
     dims = settings.get('dims', table.pack(l,w))
     l = dims[1]
     w = dims[2]
+    startLoc = settings.get('startLoc', startLoc)
+
     print('Successfully Loaded Save State')
 end
 
@@ -279,12 +283,16 @@ function startDig()
         face = t.turnToFace(mineDir, face)
     end
 
-    startLoc = t.getStartLoc(table.pack(table.unpack(home)), mineDir)
+    --Get the coordinates two spaces in front of the home location to start the quarry
+    startLoc = t.getNextLoc(table.pack(table.unpack(home)), mineDir)
+    startLoc = t.getNextLoc(startLoc), mineDir)
 
-    if(turtle.)
-    turtle.dig()
-    turtle.suck()
-    t.moveForward()
+    print('HomeLocation')
+    homeMgr.printCords(home[1],home[2],home[3])
+    print('StartLocation set!')
+    homeMgr.printCords(startLoc[1],startLoc[2],startLoc[3])
+
+    t.digToLoc(startLoc, loc, face)
 end
 
 startUpManual()

@@ -17,7 +17,7 @@ dirMethods[3] = function addZ(loc)
     return loc;
 end
 
-dirMethods[3] = function subX(loc)
+dirMethods[4] = function subX(loc)
     loc[1] = loc[1]-1
     return loc;
 end
@@ -111,6 +111,42 @@ function module.getNextLoc(coordinates, dir)
     index = findIndex(DIRS, dir)
     newCords = dirMethods[index](coordinates)
     return newCords
+end
+
+function module.digForward(coordinates, face)
+    newLoc = module.getNextLoc(coordinates, face[1])
+    count = 0
+    while turtle.detect() and count<10 do
+        turtle.dig('right')
+        count = count+1
+    end
+    if(turtle.detect() and count == 10) then
+        print('Error, unbreakable block')
+        error('Unbreakable Block detected')
+    else
+        turtle.suck()
+        turtle.forward()
+        return newLoc
+    end
+    --We Didn't move, return old coordinates
+    return coordinates
+end
+
+function module.moveForward(coordinates, face)
+    newLoc = module.getNextLoc(coordinates, face[1])
+    count = 0
+    if turtle.detect() == false then
+        turtle.forward()
+        return newLoc
+    else 
+        error('Unable to Move in the specified direction:', face[1])
+    end
+    --We Didn't move, return old coordinates
+    return coordinates
+end
+
+function module.digToLoc(targetLoc, pos, face)
+
 end
 
 return module
