@@ -1,5 +1,38 @@
 local module = {}
 DIRS = table.pack('N', 'E', 'S', 'W')
+dirMethods = {}
+
+dirMethods[1] = function subZ(loc)
+    loc[3] = loc[3]-1
+    return loc;
+end
+
+dirMethods[2] = function addX(loc)
+    loc[1] = loc[1]+1
+    return loc;
+end
+
+dirMethods[3] = function addZ(loc)
+    loc[3] = loc[3]+1
+    return loc;
+end
+
+dirMethods[3] = function subX(loc)
+    loc[1] = loc[1]-1
+    return loc;
+end
+
+function addY(loc)
+    loc[2] = loc[2]+1
+    return loc;
+end
+
+function subY(loc)
+    loc[2] = loc[2]-1
+    return loc;
+end
+
+
 
 function module.findIndex( table, value )
     for i = 1, #table do
@@ -71,6 +104,13 @@ function module.turnToFace(targetDir, face)
         end
     end
     return face
+end
+
+function module.getNextLoc(coordinates, dir)
+
+    index = findIndex(DIRS, dir)
+    newCords = dirMethods[index](coordinates)
+    return newCords
 end
 
 return module

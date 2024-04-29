@@ -278,6 +278,13 @@ function startDig()
         -- Turn to Face Mine Direction
         face = t.turnToFace(mineDir, face)
     end
+
+    startLoc = t.getStartLoc(table.pack(table.unpack(home)), mineDir)
+
+    if(turtle.)
+    turtle.dig()
+    turtle.suck()
+    t.moveForward()
 end
 
 startUpManual()
