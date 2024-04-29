@@ -74,6 +74,9 @@ function module.turnR(face)
     print('Setting Face to:', DIRS[index])
     face[1] = DIRS[index]
     return face
+
+
+
 end
 
 function module.moveToLoc(target, currentPos, face)
