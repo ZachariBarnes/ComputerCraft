@@ -32,7 +32,12 @@ function subY(loc)
     return loc;
 end
 
-
+function module.matchingLocations(targetLoc, pos)
+    xMatch = targetLoc[1] == pos[1]
+    yMatch = targetLoc[2] == pos[2]
+    zMatch = targetLoc[3] == pos[3]
+    return (xMatch and zMatch and yMatch)
+end
 
 function module.findIndex( table, value )
     for i = 1, #table do
@@ -117,7 +122,6 @@ function module.getNextLoc(coordinates, dir)
 end
 
 function module.digForward(coordinates, face)
-    newLoc = module.getNextLoc(coordinates, face[1])
     count = 0
     while turtle.detect() and count<10 do
         turtle.dig('right')
@@ -128,7 +132,7 @@ function module.digForward(coordinates, face)
         error('Unbreakable Block detected')
     else
         turtle.suck()
-        turtle.forward()
+        newLoc = module.moveForward(coordinates)
         return newLoc
     end
     --We Didn't move, return old coordinates
@@ -149,7 +153,10 @@ function module.moveForward(coordinates, face)
 end
 
 function module.digToLoc(targetLoc, pos, face)
-
+    while module.matchingLocations(targetLoc, pos) == false do
+        pos = digForward()
+        --TODO Error when we can't move or are moving in the wrong direction
+    end
 end
 
 return module
