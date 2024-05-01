@@ -22,14 +22,24 @@ dirMethods[4] = function subX(loc)
     return loc;
 end
 
-function addY(loc)
+function module.addY(loc)
     loc[2] = loc[2]+1
     return loc;
 end
 
-function subY(loc)
+function module.subY(loc)
     loc[2] = loc[2]-1
     return loc;
+end
+
+function module.getDelta(loc1, loc2)
+    X = loc2[1]-loc1[1]
+    z = loc2[3]-loc1[3]
+    x = x * x -- (X2 - X1)^2
+    z = z * z -- (z2 - z1)^2
+    total = x+z
+    delta = math.sqrt(total)
+    return delta
 end
 
 function module.matchingLocations(targetLoc, pos)
@@ -153,10 +163,22 @@ function module.moveForward(coordinates, face)
 end
 
 function module.digToLoc(targetLoc, pos, face)
-    while module.matchingLocations(targetLoc, pos) == false do
-        pos = digForward()
+    atDestination = module.matchingLocations(targetLoc, pos)
+    oldDelta = module.getDelta(targetLoc, pos)
+    isDeltaShrinking = true
+    while atDestination == false and isDeltaShrinking do
+        pos = module.digForward()
+        atDestination = module.matchingLocations(targetLoc, pos)
+        if (atDestination) then
+            break;
+        end
+        newDelta = module.getDelta(targetLoc, pos)
+        print('Old Delta: ', oldDelta, ' New Delta:', newDelta)
+        isDeltaShrinking = newDelta < oldDelta
+        oldDelta = newDelta
         --TODO Error when we can't move or are moving in the wrong direction
     end
+    return true
 end
 
 return module
