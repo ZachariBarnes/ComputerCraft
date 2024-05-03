@@ -177,6 +177,7 @@ function module.digToLoc(targetLoc, pos, face)
         isDeltaShrinking = newDelta < oldDelta
         oldDelta = newDelta
         --TODO Error when we can't move or are moving in the wrong direction
+        error("Moving in wrong direction")
     end
     return true
 end
